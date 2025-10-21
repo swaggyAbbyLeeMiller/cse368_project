@@ -1,19 +1,28 @@
-// src/App.jsx
-import React from "react";
+import { useState } from "react";
+import UploadForm from "./components/UploadForm";
+import SummaryDisplay from "./components/SummaryDisplay";
+import AudioPlayer from "./components/AudioPlayer";
 
 function App() {
+  const [result, setResult] = useState(null);
+
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
-      fontSize: "2rem",
-      fontWeight: "bold",
-      backgroundColor: "#f5f5f5",
-      color: "#333",
-    }}>
-      This is our AI summarizer website
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        textAlign: "center",
+        gap: "20px",
+        padding: "20px",
+      }}
+    >
+      <h1>SummA.I.ry - Lecture Summarizer</h1>
+      <UploadForm onResult={setResult} />
+      <SummaryDisplay summary={result} />
+      <AudioPlayer audioUrl={result?.audio_url} />
     </div>
   );
 }
