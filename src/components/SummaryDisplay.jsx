@@ -1,3 +1,4 @@
+import "../App.css"
 export default function SummaryDisplay({ summary }) {
   if (!summary) return null;
   return (

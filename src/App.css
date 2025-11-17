@@ -1,10 +1,72 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  
   text-align: center;
 }
 
+input[type="file"] {
+  font-family: "Quicksand", sans-serif;
+  font-size: 16px;
+background-color: white;
+  padding: 10px;
+  width: 500px;
+  border: 2px solid rgb(180, 81, 0);
+  border-radius: 10px;
+  color: rgb(180, 81, 0);
+}
+
+
+input[type="file"]::file-selector-button {
+  background-color: rgb(180, 81, 0);
+  color: white;
+  border: 2px solid white;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: "Quicksand", sans-serif;
+}
+
+
+input[type="file"]::file-selector-button:hover {
+  background-color: white;
+  color: rgb(180, 81, 0);
+}
+h1{
+  font-family: "Space Grotesk", sans-serif;
+  color: white;              
+  -webkit-text-stroke: 3px rgb(180, 81, 0); 
+  font-size: 72px;  
+}
+.button{
+ color: white;
+  background-color: rgb(180, 81, 0) ;
+  border-radius:10px ;
+  height: 50px;
+  width: 200px;
+  font-family: "Quicksand", sans-serif;
+  font-size: 24px;
+  border-color: white;
+  border-style:solid ;
+}
+h3{
+   font-family: "DM Serif Text", serif;
+  
+}
+h2{
+ font-family: "DM Serif Text", serif;
+ 
+}
+p{
+  font-family: "Quicksand", sans-serif;
+ 
+}
+h1, h2, h3, p, audio, button, input {
+  position: relative; 
+  z-index: 10;
+}
 .logo {
   height: 6em;
   padding: 1.5em;

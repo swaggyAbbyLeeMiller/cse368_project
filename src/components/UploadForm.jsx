@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import "../App.css"
 
 export default function UploadForm({ onResult }) {
   const [file, setFile] = useState(null);
@@ -35,9 +36,11 @@ export default function UploadForm({ onResult }) {
 
   return (
     <div>
+      <label className="upload">
       <input type="file" onChange={handleFileChange} />
+      </label>
       <br />
-      <button onClick={handleUpload} disabled={loading} style={{ marginTop: "10px" }}>
+      <button onClick={handleUpload} disabled={loading} className="button" style={{ marginTop: "10px" }}>
         {loading ? "Uploading..." : "Upload"}
       </button>
       {error && <p style={{ color: "red" }}>{error}</p>}
