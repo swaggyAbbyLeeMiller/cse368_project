@@ -69,6 +69,21 @@ p{
   color: rgb(180, 81, 0);
  
 }
+.lblock{
+  height: auto;
+  padding: 10px 10px 10px 10px;
+  width: 70%;
+  margin: auto;
+  background-color: white;
+  border: 3px solid rgb(180, 81, 0);
+  color:rgb(180, 81, 0);
+  border-radius: 5px; 
+}
+audio::-webkit-media-controls-play-button,
+     audio::-webkit-media-controls-panel {
+     background-color: rgb(180, 81, 0);
+     color: white;
+     }
 .block{
   height: auto;
   padding: 10px 10px 10px 10px;
