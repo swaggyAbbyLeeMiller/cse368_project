@@ -9,6 +9,7 @@ export default function SummaryDisplay({ summary }) {
   };
 
   return (
+    <div classname="block">
     <div style={{ marginTop: "20px" }}>
       <h2>Summary:</h2>
 
@@ -21,16 +22,18 @@ export default function SummaryDisplay({ summary }) {
         style={{
           marginTop: "10px",
           padding: "6px 14px",
-          backgroundColor: "#4caf50",
+          backgroundColor: "rgb(180, 81, 0)",
           color: "white",
-          border: "none",
+          border: "1px solid white",
           borderRadius: "6px",
           cursor: "pointer",
           fontWeight: "bold",
+          
         }}
       >
         Copy Text
       </button>
+    </div>
     </div>
   );
 }

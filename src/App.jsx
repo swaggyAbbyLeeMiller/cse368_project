@@ -10,7 +10,7 @@ function App() {
 
   return (
     <>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Quicksand:wght@300..700&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"></link>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&family=Edu+AU+VIC+WA+NT+Guides:wght@400..700&family=Quicksand:wght@300..700&family=Sonsie+One&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet"></link>
   
     <div
       style={{

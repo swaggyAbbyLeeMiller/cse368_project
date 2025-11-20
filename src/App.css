@@ -35,9 +35,9 @@ input[type="file"]::file-selector-button:hover {
   color: rgb(180, 81, 0);
 }
 h1{
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Edu AU VIC WA NT Guides", cursive;
   color: white;              
-  -webkit-text-stroke: 3px rgb(180, 81, 0); 
+  -webkit-text-stroke: 1px rgb(180, 81, 0); 
   font-size: 72px;  
 }
 .button{
@@ -53,15 +53,31 @@ h1{
 }
 h3{
    font-family: "DM Serif Text", serif;
+   color: rgb(180, 81, 0);
   
 }
 h2{
  font-family: "DM Serif Text", serif;
+ color: rgb(180, 81, 0);
  
+}
+button{
+  font-family: "Quicksand", sans-serif;
 }
 p{
   font-family: "Quicksand", sans-serif;
+  color: rgb(180, 81, 0);
  
+}
+.block{
+  height: auto;
+  padding: 10px 10px 10px 10px;
+  width: 70%;
+  margin: auto;
+  background-color: white;
+  border: 3px solid rgb(180, 81, 0);
+  color:rgb(180, 81, 0);
+  border-radius: 5px;
 }
 h1, h2, h3, p, audio, button, input {
   position: relative; 
