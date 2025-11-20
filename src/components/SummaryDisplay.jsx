@@ -9,7 +9,15 @@ export default function SummaryDisplay({ summary }) {
   };
 
   return (
-    <div classname="block">
+    <div style={{height: "auto",
+  padding: "10px 10px 10px 10px",
+  width: "70%",
+  margin: "auto",
+  backgroundColor: "white",
+  border: "3px solid rgb(180, 81, 0)",
+  color:"rgb(180, 81, 0)",
+  borderRadius:"5px"}}>
+     
     <div style={{ marginTop: "20px" }}>
       <h2>Summary:</h2>
 
