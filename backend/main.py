@@ -1,16 +1,18 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-import shutil
+from fastapi.staticfiles import StaticFiles
+from openai import OpenAI
+import fitz
 import os
+import shutil
+from dotenv import load_dotenv
 
-# Import your service functions
-from services.whisper import transcribe_audio
-from services.summarizer import generate_summary
-from services.text_to_speech import generate_tts
+load_dotenv()
+
+client = OpenAI()
 
 app = FastAPI()
 
-# Allow requests from your Vite dev server
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -19,40 +21,59 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Directories
 UPLOAD_DIR = "backend/static/uploads"
 AUDIO_DIR = "backend/static/audio"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(AUDIO_DIR, exist_ok=True)
 
-@app.get("/")
-def read_root():
-    return {"message": "SummA.I.ry backend is running!"}
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 
-@app.post("/upload/")
+def extract_text_from_pdf(pdf_path):
+    text = ""
+    with fitz.open(pdf_path) as pdf:
+        for page in pdf:
+            text += page.get_text()
+    return text.strip()
+
+def summarize_text(text):
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": f"Summarize this text clearly and concisely. The lecture topic and main idea should go first. Afterwards the main ideas of each specific subtopic should be in its own bullet point. Try to include some examples if possible.:\n{text}"}]
+    )
+    return response.choices[0].message.content.strip()
+
+def text_to_speech(text, output_audio_path):
+    response = client.audio.speech.create(
+        model="gpt-4o-mini-tts",
+        voice="alloy",
+        input=text
+    )
+    audio_bytes = response.read()  
+    with open(output_audio_path, "wb") as f:
+        f.write(audio_bytes)
+    return output_audio_path
+
+
+@app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
-    # 1. Save uploaded file
     file_location = os.path.join(UPLOAD_DIR, file.filename)
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # 2. Transcribe if audio/video, else read text
-    if file.content_type.startswith("audio") or file.content_type.startswith("video"):
-        text = transcribe_audio(file_location)
-    else:
-        with open(file_location, "r", errors="ignore") as f:
-            text = f.read()
+    text = extract_text_from_pdf(file_location)
+    if not text:
+        return {"error": "No text found in PDF"}
 
-    # 3. Generate summary
-    summary_text = generate_summary(text)
+    summary_text = summarize_text(text)
 
-    # 4. Generate TTS audio
     audio_filename = f"{os.path.splitext(file.filename)[0]}_summary.mp3"
     audio_path = os.path.join(AUDIO_DIR, audio_filename)
-    generate_tts(summary_text, audio_path)
+    text_to_speech(summary_text, audio_path)
 
-    # 5. Return JSON to frontend
+    audio_url = f"http://localhost:8000/static/audio/{audio_filename}"
     return {
         "summary_text": summary_text,
-        "audio_url": f"/static/audio/{audio_filename}"
+        "audio_url": audio_url
     }
+
+
