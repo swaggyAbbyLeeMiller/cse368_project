@@ -35,10 +35,70 @@ def extract_text_from_pdf(pdf_path):
             text += page.get_text()
     return text.strip()
 
+def extract_text_from_mp4(mp4_path):
+    with open(mp4_path, "rb") as f:
+        response = client.audio.transcriptions.create(
+            model="gpt-4o-mini-transcribe",
+            file=f
+        )
+    return response.text.strip()
+
 def summarize_text(text):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "user", "content": f"Summarize this text clearly and concisely. The lecture topic and main idea should go first. Afterwards the main ideas of each specific subtopic should be in its own bullet point. Try to include some examples if possible.:\n{text}"}]
+        messages=[
+            {
+                "role": "user",
+                "content": (
+                    "Summarize this text clearly and concisely. Start with the main topic. "
+                    "Then list major subtopics in bullet points with examples where possible.\n\n" + text
+                )
+            }
+        ]
+    )
+    return response.choices[0].message.content.strip()
+
+def evaluate_summary(original_text, summary_text):
+    prompt = (
+        "Evaluate the summary using this rubric:\n"
+        "1. Every section/slide is covered.\n"
+        "2. The summary is clear and understandable.\n"
+        "3. Each major subtopic has its own bullet point.\n\n"
+        "Give each category a score from 1 to 3.\n"
+        "Then explain the reasoning in 2–3 sentences.\n\n"
+        "Return your response in this format only:\n"
+        "Scores: X, Y, Z\nExplanation: <text>\n\n"
+        "Original Text:\n" + original_text +
+        "\n\nSummary:\n" + summary_text
+    )
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response.choices[0].message.content.strip()
+
+def parse_scores(evaluation_text):
+    try:
+        header = evaluation_text.split("\n")[0]
+        parts = header.replace("Scores:", "").split(",")
+        scores = [int(x.strip()) for x in parts]
+        return scores
+    except:
+        return [3, 3, 3]
+
+def improve_summary(original_text, previous_summary):
+    prompt = (
+        "The previous summary did not score well. Improve it using the rubric:\n"
+        "1. Make sure every major section is addressed.\n"
+        "2. Improve clarity.\n"
+        "3. Ensure each subtopic has its own bullet point.\n\n"
+        "Rewrite a better summary:\n\n"
+        "Original text:\n" + original_text
+    )
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content.strip()
 
@@ -48,32 +108,48 @@ def text_to_speech(text, output_audio_path):
         voice="alloy",
         input=text
     )
-    audio_bytes = response.read()  
+    audio_bytes = response.read()
     with open(output_audio_path, "wb") as f:
         f.write(audio_bytes)
     return output_audio_path
 
-
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     file_location = os.path.join(UPLOAD_DIR, file.filename)
+
     with open(file_location, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    text = extract_text_from_pdf(file_location)
-    if not text:
-        return {"error": "No text found in PDF"}
+    name = file.filename.lower()
+    if name.endswith(".pdf"):
+        text = extract_text_from_pdf(file_location)
+    elif name.endswith(".mp4"):
+        text = extract_text_from_mp4(file_location)
+    else:
+        return {"error": "Unsupported file type. Use PDF or MP4."}
 
-    summary_text = summarize_text(text)
+    if not text:
+        return {"error": "No text extracted from file."}
+
+    summary = summarize_text(text)
+    evaluation = evaluate_summary(text, summary)
+    scores = parse_scores(evaluation)
+
+    if any(score <= 2 for score in scores):
+        summary = improve_summary(text, summary)
+        evaluation = evaluate_summary(text, summary)
 
     audio_filename = f"{os.path.splitext(file.filename)[0]}_summary.mp3"
     audio_path = os.path.join(AUDIO_DIR, audio_filename)
-    text_to_speech(summary_text, audio_path)
+    text_to_speech(summary, audio_path)
 
     audio_url = f"http://localhost:8000/static/audio/{audio_filename}"
+
     return {
-        "summary_text": summary_text,
+        "summary_text": summary,
+        "evaluation": evaluation,
         "audio_url": audio_url
     }
+
 
 
